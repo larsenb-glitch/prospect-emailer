@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 
 const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
-const ANTHROPIC_API_KEY = "sk-ant-xxxxxxxxxxxxxxxx";
+const ANTHROPIC_API_KEY = "sk-ant-api03-nQI...xAAA";
 
 const RESEARCH_PROMPT = (name, company) => `
 You are a B2B sales research assistant. Research the following prospect and return a JSON object ONLY (no markdown, no explanation, no backticks).
