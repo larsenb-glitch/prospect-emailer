@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 
 const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
-const ANTHROPIC_API_KEY = "sk-ant-api03-nQI...xAAA";
 
 const RESEARCH_PROMPT = (name, company) => `
 You are a B2B sales research assistant. Research the following prospect and return a JSON object ONLY (no markdown, no explanation, no backticks).
@@ -48,16 +47,29 @@ Return ONLY a JSON object (no markdown, no backticks):
   "body": "..."
 }`;
 
+const BRAND = {
+  teal: "#2bbfbf",
+  tealDark: "#1a9e9e",
+  tealLight: "#e8f9f9",
+  navy: "#1a2e44",
+  gray: "#f7f8fa",
+  grayBorder: "#e2e6ea",
+  textDark: "#1a2e44",
+  textMid: "#4a5568",
+  textLight: "#8a95a3",
+  white: "#ffffff",
+};
+
 const S = {
-  page: { minHeight: "100vh", background: "#0a0a0f", fontFamily: "Georgia, 'Times New Roman', serif", color: "#e8e4dc", position: "relative", overflow: "hidden" },
-  bg: { position: "fixed", inset: 0, zIndex: 0, background: "radial-gradient(ellipse 80% 60% at 50% -10%, #1a1040 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, #0d2030 0%, transparent 50%)", pointerEvents: "none" },
-  wrap: { position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "48px 24px" },
-  label: { display: "block", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b8956a", marginBottom: 8 },
-  input: { width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, padding: "10px 14px", color: "#e8e4dc", fontSize: 14, fontFamily: "Georgia, serif", outline: "none" },
-  card: { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 4, padding: "24px 28px" },
-  goldCard: { background: "rgba(184,149,106,0.04)", border: "1px solid rgba(184,149,106,0.2)", borderRadius: 4, padding: "24px 28px" },
-  microLabel: { fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: "#4a4640", marginBottom: 5 },
-  microVal: { fontSize: 13, color: "#c8c4bc", lineHeight: 1.5 },
+  page: { minHeight: "100vh", background: BRAND.gray, fontFamily: "'Helvetica Neue', Arial, sans-serif", color: BRAND.textDark },
+  bg: { display: "none" },
+  wrap: { position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "0 24px 48px" },
+  label: { display: "block", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.textMid, marginBottom: 7, fontWeight: 600 },
+  input: { width: "100%", boxSizing: "border-box", background: BRAND.white, border: `1px solid ${BRAND.grayBorder}`, borderRadius: 6, padding: "10px 14px", color: BRAND.textDark, fontSize: 14, fontFamily: "inherit", outline: "none", transition: "border-color 0.2s" },
+  card: { background: BRAND.white, border: `1px solid ${BRAND.grayBorder}`, borderRadius: 10, padding: "24px 28px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" },
+  goldCard: { background: BRAND.tealLight, border: "1px solid rgba(43,191,191,0.25)", borderRadius: 10, padding: "24px 28px" },
+  microLabel: { fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.textLight, marginBottom: 5, fontWeight: 600 },
+  microVal: { fontSize: 13, color: BRAND.textMid, lineHeight: 1.6 },
 };
 
 const callClaude = async (userPrompt, useWebSearch = false, apiKey = "") => {
@@ -85,11 +97,11 @@ const callClaude = async (userPrompt, useWebSearch = false, apiKey = "") => {
 
 function StatusBadge({ status }) {
   const map = {
-    idle:        { color: "#4a4640", bg: "rgba(255,255,255,0.04)", label: "Queued" },
-    researching: { color: "#b8956a", bg: "rgba(184,149,106,0.1)",  label: "Researching…" },
-    writing:     { color: "#7a9abf", bg: "rgba(100,140,200,0.1)",  label: "Writing email…" },
-    done:        { color: "#80c090", bg: "rgba(80,160,100,0.1)",   label: "Done" },
-    error:       { color: "#e08080", bg: "rgba(180,60,60,0.1)",    label: "Error" },
+    idle:        { color: "#8a95a3", bg: "#f0f2f5",               label: "Queued" },
+    researching: { color: "#1a9e9e", bg: "rgba(43,191,191,0.12)", label: "Researching…" },
+    writing:     { color: "#3b7dd8", bg: "rgba(59,125,216,0.1)",  label: "Writing email…" },
+    done:        { color: "#2e9e6e", bg: "rgba(46,158,110,0.1)",  label: "Done ✓" },
+    error:       { color: "#d94f4f", bg: "rgba(217,79,79,0.1)",   label: "Error" },
   };
   const s = map[status] || map.idle;
   return (
@@ -117,22 +129,22 @@ function ResultCard({ result }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <StatusBadge status={result.status} />
-          <span style={{ fontSize: 15, color: "#f0ece4", fontWeight: 500 }}>{result.name}</span>
-          <span style={{ color: "#3a3630" }}>·</span>
-          <span style={{ fontSize: 13, color: "#7a7570", fontStyle: "italic" }}>{result.company}</span>
+          <span style={{ fontSize: 15, color: BRAND.textDark, fontWeight: 600 }}>{result.name}</span>
+          <span style={{ color: BRAND.grayBorder }}>·</span>
+          <span style={{ fontSize: 13, color: BRAND.textMid }}>{result.company}</span>
           {result.research?.title && (
-            <span style={{ fontSize: 12, color: "#5a5550" }}>{result.research.title}</span>
+            <span style={{ fontSize: 12, color: BRAND.textLight }}>{result.research.title}</span>
           )}
           {result.status === "error" && (
-            <span style={{ fontSize: 12, color: "#e08080", fontStyle: "italic" }}>{result.errorMsg}</span>
+            <span style={{ fontSize: 12, color: "#d94f4f", fontStyle: "italic" }}>{result.errorMsg}</span>
           )}
         </div>
         {result.status === "done" && (
           <button
             onClick={() => setExpanded(x => !x)}
-            style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, color: "#b8956a", padding: "5px 14px", fontSize: 11, letterSpacing: "0.1em", cursor: "pointer", textTransform: "uppercase", whiteSpace: "nowrap" }}
+            style={{ background: "transparent", border: `1px solid ${BRAND.teal}`, borderRadius: 6, color: BRAND.teal, padding: "5px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
           >
-            {expanded ? "Collapse" : "View →"}
+            {expanded ? "Collapse ▲" : "View ▼"}
           </button>
         )}
       </div>
@@ -140,7 +152,7 @@ function ResultCard({ result }) {
       {expanded && result.status === "done" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginTop: 20 }}>
           <div style={S.goldCard}>
-            <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b8956a", marginBottom: 16 }}>Research Brief</div>
+            <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.tealDark, marginBottom: 16, fontWeight: 700 }}>Research Brief</div>
             {[
               ["Title", result.research.title],
               ["Industry", result.research.industry],
@@ -156,26 +168,26 @@ function ResultCard({ result }) {
             ))}
           </div>
           <div style={{ ...S.card, display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b8956a", marginBottom: 16 }}>Draft Email</div>
+            <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.tealDark, marginBottom: 16, fontWeight: 700 }}>Draft Email</div>
             <div style={{ marginBottom: 12 }}>
               <div style={S.microLabel}>Subject</div>
-              <div style={{ ...S.microVal, color: "#e8e4dc", fontWeight: 600, background: "rgba(255,255,255,0.04)", padding: "8px 12px", borderRadius: 3 }}>
+              <div style={{ fontSize: 14, color: BRAND.textDark, fontWeight: 600, background: BRAND.gray, padding: "8px 12px", borderRadius: 6, border: `1px solid ${BRAND.grayBorder}` }}>
                 {result.email.subject}
               </div>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={S.microLabel}>Body <span style={{ textTransform: "none", letterSpacing: 0, color: "#3a3630", fontStyle: "italic" }}>(editable)</span></div>
+              <div style={S.microLabel}>Body <span style={{ textTransform: "none", letterSpacing: 0, color: BRAND.textLight, fontWeight: 400 }}>(editable)</span></div>
               <textarea
                 value={editBody}
                 onChange={e => setEditBody(e.target.value)}
                 style={{ ...S.input, lineHeight: 1.7, resize: "vertical", minHeight: 160 }}
-                onFocus={e => e.target.style.borderColor = "rgba(184,149,106,0.4)"}
-                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+                onFocus={e => e.target.style.borderColor = BRAND.teal}
+                onBlur={e => e.target.style.borderColor = BRAND.grayBorder}
               />
             </div>
             <button
               onClick={copy}
-              style={{ marginTop: 12, background: copied ? "rgba(80,160,100,0.2)" : "rgba(184,149,106,0.15)", border: `1px solid ${copied ? "rgba(80,160,100,0.4)" : "rgba(184,149,106,0.3)"}`, borderRadius: 3, padding: "9px 16px", color: copied ? "#80c090" : "#b8956a", fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "Georgia, serif", cursor: "pointer" }}
+              style={{ marginTop: 12, background: copied ? "#2e9e6e" : BRAND.teal, border: "none", borderRadius: 6, padding: "10px 16px", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "background 0.2s" }}
             >
               {copied ? "✓ Copied!" : "Copy Subject + Body"}
             </button>
@@ -190,8 +202,6 @@ let idCounter = 0;
 const newRow = () => ({ id: ++idCounter, name: "", company: "" });
 
 export default function BatchProspectEmailer() {
-  const [apiKey, setApiKey] = useState("");
-  const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [rows, setRows] = useState([newRow(), newRow(), newRow()]);
   const [results, setResults] = useState([]);
   const [running, setRunning] = useState(false);
@@ -233,10 +243,10 @@ export default function BatchProspectEmailer() {
       const update = (patch) => setResults(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r));
       try {
         update({ status: "researching" });
-        const rawResearch = await callClaude(RESEARCH_PROMPT(name, company), true, apiKey);
+        const rawResearch = await callClaude(RESEARCH_PROMPT(name, company), true, ANTHROPIC_API_KEY);
         const research = JSON.parse(rawResearch);
         update({ research, status: "writing" });
-        const rawEmail = await callClaude(EMAIL_PROMPT(research), false, apiKey);
+        const rawEmail = await callClaude(EMAIL_PROMPT(research), false, ANTHROPIC_API_KEY);
         const email = JSON.parse(rawEmail);
         update({ email, status: "done" });
       } catch (err) {
@@ -259,59 +269,30 @@ export default function BatchProspectEmailer() {
   return (
     <div style={S.page}>
       <div style={S.bg} />
+
+      {/* Top nav bar */}
+      <div style={{ background: BRAND.navy, padding: "0 32px", display: "flex", alignItems: "center", height: 60, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
+        <img src="https://opiniion.com/wp-content/uploads/2022/05/Group-943.svg" alt="Opiniion" style={{ height: 28, filter: "brightness(0) invert(1)" }} />
+        <span style={{ marginLeft: 16, color: "rgba(255,255,255,0.4)", fontSize: 13 }}>|</span>
+        <span style={{ marginLeft: 16, color: "rgba(255,255,255,0.75)", fontSize: 13, fontWeight: 500, letterSpacing: "0.02em" }}>Prospect Emailer</span>
+      </div>
+
       <div style={S.wrap}>
 
         {/* Header */}
-        <div style={{ marginBottom: 44, textAlign: "center" }}>
-          <div style={{ fontSize: 11, letterSpacing: "0.25em", textTransform: "uppercase", color: "#b8956a", marginBottom: 12 }}>Sales Intelligence</div>
-          <h1 style={{ fontSize: "clamp(26px, 4vw, 44px)", fontWeight: 400, margin: 0, letterSpacing: "-0.02em", lineHeight: 1.1, color: "#f0ece4" }}>
-            Batch Prospect <em style={{ fontStyle: "italic", color: "#b8956a" }}>Research</em> & Outreach
+        <div style={{ padding: "36px 0 28px", borderBottom: `1px solid ${BRAND.grayBorder}`, marginBottom: 28 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0, color: BRAND.navy }}>
+            Batch Prospect Research & Email Generator
           </h1>
-          <p style={{ marginTop: 12, color: "#7a7570", fontSize: 14, fontStyle: "italic", maxWidth: 520, margin: "12px auto 0", lineHeight: 1.6 }}>
-            Add prospects below — or paste a CSV (Name, Company per line). We'll research each one and draft a personalized cold email.
+          <p style={{ marginTop: 8, color: BRAND.textMid, fontSize: 14, lineHeight: 1.6, maxWidth: 580 }}>
+            Add prospects below — or paste a CSV (Name, Company per line). We'll research each one and draft a personalized cold email pitched around Opiniion's value prop.
           </p>
-        </div>
-
-        {/* API Key panel */}
-        <div style={{ ...S.card, marginBottom: 20, borderColor: apiKey ? "rgba(80,160,100,0.2)" : "rgba(184,149,106,0.2)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <label style={S.label}>
-                Anthropic API Key
-                {apiKey && <span style={{ color: "#80c090", marginLeft: 8, fontSize: 10 }}>✓ Set</span>}
-              </label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input
-                  type={apiKeyVisible ? "text" : "password"}
-                  value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
-                  placeholder="sk-ant-..."
-                  style={{ ...S.input, flex: 1, fontFamily: "monospace", fontSize: 13, letterSpacing: apiKey && !apiKeyVisible ? "0.1em" : "normal" }}
-                  onFocus={e => e.target.style.borderColor = "rgba(184,149,106,0.5)"}
-                  onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
-                />
-                <button
-                  onClick={() => setApiKeyVisible(v => !v)}
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, color: "#7a7570", padding: "0 14px", cursor: "pointer", fontSize: 13 }}
-                  title={apiKeyVisible ? "Hide" : "Show"}
-                >
-                  {apiKeyVisible ? "🙈" : "👁"}
-                </button>
-              </div>
-            </div>
-            <div style={{ fontSize: 12, color: "#4a4640", fontStyle: "italic", maxWidth: 340, lineHeight: 1.6 }}>
-              Your key is never stored — it lives only in this browser session and is sent directly to Anthropic.{" "}
-              <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer" style={{ color: "#b8956a", textDecoration: "none" }}>
-                Get a key →
-              </a>
-            </div>
-          </div>
         </div>
 
         {/* Input table */}
         {!running && results.length === 0 && (
-          <div style={{ ...S.card, marginBottom: 28, borderColor: "rgba(184,149,106,0.2)" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 36px", gap: 10, marginBottom: 10 }}>
+          <div style={{ ...S.card, marginBottom: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 36px", gap: 10, marginBottom: 12 }}>
               <div style={S.label}>Prospect Name</div>
               <div style={S.label}>Company</div>
               <div />
@@ -320,41 +301,41 @@ export default function BatchProspectEmailer() {
               {rows.map(r => (
                 <div key={r.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 36px", gap: 10, marginBottom: 10 }}>
                   <input value={r.name} onChange={e => updateRow("name", e.target.value, r.id)} placeholder="e.g. Sarah Chen" style={S.input}
-                    onFocus={e => e.target.style.borderColor = "rgba(184,149,106,0.5)"}
-                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"} />
-                  <input value={r.company} onChange={e => updateRow("company", e.target.value, r.id)} placeholder="e.g. Acme Corp" style={S.input}
-                    onFocus={e => e.target.style.borderColor = "rgba(184,149,106,0.5)"}
-                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"} />
-                  <button onClick={() => updateRow("remove", null, r.id)} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 3, color: "#4a4640", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
+                    onFocus={e => e.target.style.borderColor = BRAND.teal}
+                    onBlur={e => e.target.style.borderColor = BRAND.grayBorder} />
+                  <input value={r.company} onChange={e => updateRow("company", e.target.value, r.id)} placeholder="e.g. Acme Properties" style={S.input}
+                    onFocus={e => e.target.style.borderColor = BRAND.teal}
+                    onBlur={e => e.target.style.borderColor = BRAND.grayBorder} />
+                  <button onClick={() => updateRow("remove", null, r.id)} style={{ background: "transparent", border: `1px solid ${BRAND.grayBorder}`, borderRadius: 6, color: BRAND.textLight, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
                 </div>
               ))}
             </div>
             <div style={{ display: "flex", gap: 12, marginTop: 16, alignItems: "center", flexWrap: "wrap" }}>
               <button onClick={() => setRows(r => [...r, newRow()])}
-                style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, color: "#7a7570", padding: "9px 18px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Georgia, serif" }}>
+                style={{ background: "transparent", border: `1px solid ${BRAND.grayBorder}`, borderRadius: 6, color: BRAND.textMid, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 + Add Row
               </button>
-              <button onClick={run} disabled={!validRows.length || !apiKey.trim()}
-                style={{ background: (validRows.length && apiKey.trim()) ? "rgba(184,149,106,0.9)" : "rgba(184,149,106,0.2)", color: (validRows.length && apiKey.trim()) ? "#0a0a0f" : "#7a7570", border: "none", borderRadius: 3, padding: "9px 28px", fontSize: 13, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "Georgia, serif", cursor: (validRows.length && apiKey.trim()) ? "pointer" : "not-allowed", fontWeight: 600 }}>
-                {!apiKey.trim() ? "Enter API Key to Run" : `Run ${validRows.length > 0 ? `${validRows.length} Prospect${validRows.length !== 1 ? "s" : ""}` : ""} →`}
+              <button onClick={run} disabled={!validRows.length}
+                style={{ background: validRows.length ? BRAND.teal : "#c8e8e8", color: "#fff", border: "none", borderRadius: 6, padding: "9px 28px", fontSize: 14, fontWeight: 700, cursor: validRows.length ? "pointer" : "not-allowed", transition: "background 0.2s" }}>
+                Run {validRows.length > 0 ? `${validRows.length} Prospect${validRows.length !== 1 ? "s" : ""}` : ""} →
               </button>
-              <span style={{ fontSize: 12, color: "#3a3630", fontStyle: "italic" }}>tip: paste a CSV to fill the list instantly</span>
+              <span style={{ fontSize: 12, color: BRAND.textLight }}>tip: paste a CSV to fill the list instantly</span>
             </div>
           </div>
         )}
 
         {/* Progress */}
         {running && (
-          <div style={{ ...S.card, marginBottom: 28, borderColor: "rgba(184,149,106,0.2)" }}>
+          <div style={{ ...S.card, marginBottom: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div style={{ fontSize: 13, color: "#b8956a" }}>Processing {progress.done} of {progress.total} prospects…</div>
-              <div style={{ fontSize: 12, color: "#4a4640" }}>{pct}%</div>
+              <div style={{ fontSize: 14, color: BRAND.navy, fontWeight: 600 }}>Processing {progress.done} of {progress.total} prospects…</div>
+              <div style={{ fontSize: 13, color: BRAND.textLight }}>{pct}%</div>
             </div>
-            <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(90deg, #b8956a, #d4af80)", borderRadius: 2, transition: "width 0.5s ease" }} />
+            <div style={{ height: 6, background: BRAND.grayBorder, borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${BRAND.teal}, ${BRAND.tealDark})`, borderRadius: 3, transition: "width 0.5s ease" }} />
             </div>
             <button onClick={() => { cancelRef.current = true; }}
-              style={{ marginTop: 14, background: "transparent", border: "1px solid rgba(180,60,60,0.3)", borderRadius: 3, color: "#e08080", padding: "6px 16px", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Georgia, serif" }}>
+              style={{ marginTop: 14, background: "transparent", border: "1px solid #d94f4f", borderRadius: 6, color: "#d94f4f", padding: "6px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
               Cancel
             </button>
           </div>
@@ -363,13 +344,13 @@ export default function BatchProspectEmailer() {
         {/* Results list */}
         {results.length > 0 && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#b8956a" }}>
-                Results — {results.filter(r => r.status === "done").length} / {results.length} complete
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: 13, color: BRAND.textMid, fontWeight: 600 }}>
+                {results.filter(r => r.status === "done").length} of {results.length} complete
               </div>
               {isDone && (
                 <button onClick={reset}
-                  style={{ background: "transparent", border: "1px solid rgba(184,149,106,0.3)", borderRadius: 3, color: "#b8956a", padding: "6px 16px", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Georgia, serif" }}>
+                  style={{ background: "transparent", border: `1px solid ${BRAND.teal}`, borderRadius: 6, color: BRAND.teal, padding: "6px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                   ↺ New Batch
                 </button>
               )}
