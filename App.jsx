@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 
 const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
-   const ANTHROPIC_API_KEY = "sk-ant-api03-nQI...xAAA";
 
 const RESEARCH_PROMPT = (name, company) => `
 You are a B2B sales research assistant. Research the following prospect and return a JSON object ONLY (no markdown, no explanation, no backticks).
@@ -81,8 +80,7 @@ const callClaude = async (userPrompt, useWebSearch = false, apiKey = "") => {
   };
   if (useWebSearch) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
   const headers = { "Content-Type": "application/json" };
-  if (apiKey) headers["x-api-key"] = apiKey;
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+const res = await fetch("/api/proxy", {
     method: "POST",
     headers,
     body: JSON.stringify(body),
