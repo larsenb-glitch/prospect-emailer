@@ -72,21 +72,20 @@ const S = {
   microVal: { fontSize: 13, color: BRAND.textMid, lineHeight: 1.6 },
 };
 
-const callClaude = async (userPrompt, useWebSearch = false, apiKey = "") => {
+const callClaude = async (userPrompt, useWebSearch = false) => {
   const body = {
     model: ANTHROPIC_MODEL,
     max_tokens: 1000,
     messages: [{ role: "user", content: userPrompt }],
   };
   if (useWebSearch) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-  const headers = { "Content-Type": "application/json" };
-const res = await fetch("/api/proxy", {
+  const res = await fetch("/api/proxy", {
     method: "POST",
-    headers,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    if (res.status === 401) throw new Error("Invalid API key — please check and try again.");
+    if (res.status === 401) throw new Error("Invalid API key — check your Vercel environment variable.");
     throw new Error(`API error: ${res.status}`);
   }
   const data = await res.json();
@@ -242,10 +241,10 @@ export default function BatchProspectEmailer() {
       const update = (patch) => setResults(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r));
       try {
         update({ status: "researching" });
-        const rawResearch = await callClaude(RESEARCH_PROMPT(name, company), true, ANTHROPIC_API_KEY);
+        const rawResearch = await callClaude(RESEARCH_PROMPT(name, company), true);
         const research = JSON.parse(rawResearch);
         update({ research, status: "writing" });
-        const rawEmail = await callClaude(EMAIL_PROMPT(research), false, ANTHROPIC_API_KEY);
+        const rawEmail = await callClaude(EMAIL_PROMPT(research), false);
         const email = JSON.parse(rawEmail);
         update({ email, status: "done" });
       } catch (err) {
@@ -361,3 +360,4 @@ export default function BatchProspectEmailer() {
     </div>
   );
 }
+
