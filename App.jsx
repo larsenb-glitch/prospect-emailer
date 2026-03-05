@@ -85,8 +85,9 @@ const callClaude = async (userPrompt, useWebSearch = false) => {
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    if (res.status === 401) throw new Error("Invalid API key — check your Vercel environment variable.");
-    throw new Error(`API error: ${res.status}`);
+    const errData = await res.json().catch(() => ({}));
+    const msg = errData?.error || `API error: ${res.status}`;
+    throw new Error(msg);
   }
   const data = await res.json();
   const text = data.content.filter(b => b.type === "text").map(b => b.text).join("");
@@ -360,4 +361,3 @@ export default function BatchProspectEmailer() {
     </div>
   );
 }
-
