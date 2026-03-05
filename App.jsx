@@ -2,50 +2,21 @@ import { useState, useRef } from "react";
 
 const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
 
-const RESEARCH_PROMPT = (name, company) => `
-You are a B2B sales research assistant. Research the following prospect and return a JSON object ONLY (no markdown, no explanation, no backticks).
+const RESEARCH_PROMPT = (name, company) => `Research this prospect and return JSON only (no markdown, no backticks).
 
-Prospect: ${name}
-Company: ${company}
+Prospect: ${name} at ${company}
 
-Search the web to find:
-1. Their likely job title / role
-2. The company's industry and what they do (1-2 sentences)
-3. Company size estimate (employees/revenue if findable)
-4. Any recent news about the company or person (last 6 months)
-5. Any pain points or initiatives the company is known for
+Find: job title, company industry, company description (1 sentence), company size, recent news (1 sentence), pain points.
 
-Return ONLY this JSON structure:
-{
-  "name": "${name}",
-  "company": "${company}",
-  "title": "...",
-  "industry": "...",
-  "companyDescription": "...",
-  "companySize": "...",
-  "recentNews": "...",
-  "painPoints": "..."
-}`;
+Return ONLY: {"name":"${name}","company":"${company}","title":"...","industry":"...","companyDescription":"...","companySize":"...","recentNews":"...","painPoints":"..."}`;
 
-const EMAIL_PROMPT = (research) => `
-You are an expert B2B cold email copywriter. Using the research below, write a short, compelling cold outreach email.
+const EMAIL_PROMPT = (research) => `Write a short B2B cold email on behalf of Opiniion — resident satisfaction software for property management companies. Opiniion helps property managers collect real-time resident feedback, generate online reviews, manage social media across all properties, and sync business listings (Google, Yelp, etc.).
 
-Research:
-${JSON.stringify(research, null, 2)}
+Prospect: ${research.name}, ${research.title} at ${research.company}. ${research.companyDescription} Recent news: ${research.recentNews}. Pain points: ${research.painPoints}.
 
-Rules:
-- Max 100 words in the body
-- Personalize using the research — mention the company, recent news, or a pain point
-- Clear value proposition in 1 sentence
-- One soft CTA (e.g., "Worth a quick chat?")
-- No fluff, no fake familiarity
-- Professional but human tone
+Rules: max 80 words, open with something specific to them, mention one Opiniion benefit, soft CTA, no fluff.
 
-Return ONLY a JSON object (no markdown, no backticks):
-{
-  "subject": "...",
-  "body": "..."
-}`;
+Return ONLY: {"subject":"...","body":"..."}`;
 
 const BRAND = {
   teal: "#2bbfbf",
