@@ -515,17 +515,39 @@ function StatusBadge({ status }) {
   return <span className={`badge ${s.cls}`}>{s.label}</span>;
 }
 
-function ResultCard({ result }) {
+function ResultCard({ result, onRegenerate }) {
   const [expanded, setExpanded] = useState(false);
   const [editBody, setEditBody] = useState(result.email?.body || "");
-  const [copied, setCopied] = useState(false);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedSubject, setCopiedSubject] = useState(false);
+  const [copiedBody, setCopiedBody] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   if (result.email && !editBody && result.email.body) setEditBody(result.email.body);
 
-  const copy = () => {
+  const copyAll = () => {
     navigator.clipboard.writeText(`Subject: ${result.email.subject}\n\n${editBody}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 2000);
+  };
+
+  const copySubject = () => {
+    navigator.clipboard.writeText(result.email.subject);
+    setCopiedSubject(true);
+    setTimeout(() => setCopiedSubject(false), 2000);
+  };
+
+  const copyBody = () => {
+    navigator.clipboard.writeText(editBody);
+    setCopiedBody(true);
+    setTimeout(() => setCopiedBody(false), 2000);
+  };
+
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    await onRegenerate(result.id, result.research);
+    setRegenerating(false);
+    setEditBody("");
   };
 
   const cardClass = `result-card ${result.status === "done" ? "done" : result.status === "error" ? "error" : ""}`;
@@ -534,7 +556,7 @@ function ResultCard({ result }) {
     <div className={cardClass}>
       <div className="result-row">
         <div className="result-left">
-          <StatusBadge status={result.status} />
+          <StatusBadge status={regenerating ? "writing" : result.status} />
           <span className="result-name">{result.name}</span>
           <span className="result-dot">·</span>
           <span className="result-company">{result.company}</span>
@@ -542,9 +564,19 @@ function ResultCard({ result }) {
           {result.status === "error" && <span className="result-error">{result.errorMsg}</span>}
         </div>
         {result.status === "done" && (
-          <button className="btn-view" onClick={() => setExpanded(x => !x)}>
-            {expanded ? "Collapse ▲" : "View Email ▼"}
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              className="btn-view"
+              onClick={handleRegenerate}
+              disabled={regenerating}
+              style={{ borderColor: "#94a3b8", color: "#64748b" }}
+            >
+              {regenerating ? "Rewriting…" : "↺ Regenerate"}
+            </button>
+            <button className="btn-view" onClick={() => setExpanded(x => !x)}>
+              {expanded ? "Collapse ▲" : "View Email ▼"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -569,16 +601,34 @@ function ResultCard({ result }) {
 
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div className="panel-title">Draft Email</div>
-            <div className="micro-label">Subject Line</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <div className="micro-label" style={{ margin: 0 }}>Subject Line</div>
+              <button
+                onClick={copySubject}
+                style={{ background: "transparent", border: "none", fontSize: 11, color: copiedSubject ? "#38a169" : "#2bbfbf", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", padding: "2px 0" }}
+              >
+                {copiedSubject ? "✓ Copied" : "Copy"}
+              </button>
+            </div>
             <div className="subject-box">{result.email.subject}</div>
-            <div className="micro-label">Body <span style={{ textTransform: "none", letterSpacing: 0, color: "#b0bec5", fontWeight: 400 }}>(editable)</span></div>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <div className="micro-label" style={{ margin: 0 }}>Body <span style={{ textTransform: "none", letterSpacing: 0, color: "#b0bec5", fontWeight: 400 }}>(editable)</span></div>
+              <button
+                onClick={copyBody}
+                style={{ background: "transparent", border: "none", fontSize: 11, color: copiedBody ? "#38a169" : "#2bbfbf", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", padding: "2px 0" }}
+              >
+                {copiedBody ? "✓ Copied" : "Copy"}
+              </button>
+            </div>
             <textarea
               className="email-textarea"
-              value={editBody}
+              value={regenerating ? "Rewriting email…" : editBody}
               onChange={e => setEditBody(e.target.value)}
+              disabled={regenerating}
             />
-            <button className={`btn-copy${copied ? " copied" : ""}`} onClick={copy}>
-              {copied ? "✓ Copied to clipboard!" : "Copy Subject + Body"}
+            <button className={`btn-copy${copiedAll ? " copied" : ""}`} onClick={copyAll} disabled={regenerating}>
+              {copiedAll ? "✓ Copied to clipboard!" : "Copy Subject + Body Together"}
             </button>
           </div>
         </div>
@@ -640,6 +690,17 @@ export default function App() {
       setProgress({ done: i + 1, total: validRows.length });
     }
     setRunning(false);
+  };
+
+  const regenerate = async (id, research) => {
+    const update = (patch) => setResults(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r));
+    try {
+      const rawEmail = await callClaude(EMAIL_PROMPT(research), false);
+      const email = JSON.parse(rawEmail);
+      update({ email, status: "done" });
+    } catch (err) {
+      update({ status: "error", errorMsg: err.message || "Failed" });
+    }
   };
 
   const reset = () => {
@@ -744,7 +805,7 @@ export default function App() {
                 </div>
                 {isDone && <button className="new-batch-btn" onClick={reset}>↺ New Batch</button>}
               </div>
-              {results.map(r => <ResultCard key={r.id} result={r} />)}
+              {results.map(r => <ResultCard key={r.id} result={r} onRegenerate={regenerate} />)}
             </div>
           )}
 
