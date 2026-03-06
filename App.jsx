@@ -32,7 +32,7 @@ Recent news: ${research.recentNews}
 
 EMAIL RULES:
 - Max 80 words in the body
-- Open with ONE specific observation about their company or a pain point they likely feel — NOT a generic opener
+- Always open with "Hey [first name]," or "Hi [first name]," on its own line before the rest of the email
 - Connect that pain point to ONE specific Opiniion capability — use a concrete stat or outcome if relevant
 - End with a soft CTA ("Worth a quick call?" or "Open to a 15-min demo?")
 - Write like a real person — no buzzwords, no "I hope this finds you well", no fluff
