@@ -12,17 +12,38 @@ Return ONLY this exact JSON structure with no other text:
 const EMAIL_PROMPT = (research) => `You are a senior B2B copywriter. Write a cold outreach email from Opiniion to the prospect below. Return ONLY JSON, no other text.
 
 ABOUT OPINIION:
-Opiniion is a leading resident satisfaction and reputation management platform for multifamily property management companies. Named to the Inc. 5000 Fastest-Growing Companies list two years in a row. Subscription-based, scalable for any portfolio size.
+Opiniion empowers property owners and operators to attract, engage, and retain residents using a suite of industry-leading tools that impact every stage of the resident journey. Named to the Inc. 5000 Fastest-Growing Companies list two years in a row. Subscription-based, scalable for any portfolio size.
+
+Opiniion's full product suite:
+
+ATTRACT — Draw in qualified prospects with:
+- Business Listings Management: accurate, synced listings across Google, Yelp, Apple Maps and more
+- Strong online reputation that converts more leads to leases
+- Peer-to-Peer Leasing (Rentgrata): real renter-to-prospect conversations that convert leads
+
+ENGAGE — Keep residents connected with:
+- Resident Satisfaction surveys: automated SMS/email surveys at tours, move-ins, maintenance, renewals, move-outs
+- Negative feedback routing: catches problems before they become public reviews
+- Automated review generation: converts happy residents into Google/Yelp/ApartmentRatings reviews
+- Social Media Management: manage all property social accounts from one place
+- Personalized resident outreach and community connection tools
+
+RETAIN — Boost loyalty and NOI with:
+- Review Response Management: quick, consistent responses across all platforms
+- Resident Rewards: incentivizes loyalty and positive engagement
+- AI Renter Insights: actionable data to improve resident experience
+- Response Dispute tools: manage and resolve negative reviews
+- Analytics & Reporting: portfolio-wide performance across communities, managers, maintenance teams
 
 Core problems solved:
-- Property managers only hear from residents when things go wrong — Opiniion creates a continuous feedback loop via automated SMS/email surveys at key moments (tours, move-ins, maintenance, renewals, move-outs)
-- Bad reviews kill leasing — Opiniion automatically converts happy residents into public reviews, helping properties significantly improve their star ratings and review volume within months
-- No portfolio visibility — Opiniion's dashboard shows performance across communities, managers, and maintenance teams
-- Feedback fragmented across PMS systems — Opiniion integrates with Yardi, Entrata, AppFolio, RealPage, Buildium, Rent Manager
+- Property managers only hear from residents when things go wrong — Opiniion creates a continuous feedback loop
+- Bad reviews kill leasing — Opiniion converts happy residents into public reviews, significantly improving star ratings and review volume
+- No portfolio visibility — dashboard shows performance across all communities, managers, and maintenance teams
+- Fragmented feedback across Yardi, Entrata, AppFolio, RealPage, Buildium, Rent Manager — Opiniion integrates with all
+- Inaccurate listings across the web — business listings sync keeps all property info consistent everywhere
+- Residents leave without warning — rewards and engagement tools drive retention and renewals
 
-Key capabilities: automated SMS/email surveys, negative feedback routing (catches problems before they become public reviews), automated review generation, centralized reputation monitoring (Google, Yelp, Facebook, ApartmentRatings), customizable survey campaigns, portfolio analytics, social media management, business listings sync.
-
-Business outcomes: higher star ratings, more leasing conversions, better retention, operational intelligence, improved NOI.
+Business outcomes: higher star ratings, more leasing conversions, better resident retention, improved NOI, stronger community reputation.
 
 PROSPECT:
 Name: ${research.name}, Title: ${research.title}, Company: ${research.company}
@@ -33,11 +54,11 @@ Recent news: ${research.recentNews}
 EMAIL RULES:
 - Max 80 words in the body
 - Always open with "Hey [first name]," or "Hi [first name]," on its own line before the rest of the email
-- Connect that pain point to ONE specific Opiniion capability — use a concrete stat or outcome if relevant
+- Pick the ONE Opiniion capability most relevant to this specific prospect's pain points — don't list everything
+- Connect their pain point to that one capability naturally
 - End with a soft CTA ("Worth a quick call?" or "Open to a 15-min demo?")
 - Write like a real person — no buzzwords, no "I hope this finds you well", no fluff
 - Format the body with a line break between each sentence — no walls of text
-- Pick the ONE most relevant feature, don't list everything
 
 Return ONLY this JSON with no other text:
 {"subject":"...","body":"..."}`;
