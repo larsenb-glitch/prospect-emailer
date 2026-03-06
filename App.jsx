@@ -9,13 +9,37 @@ Person: ${name}, Company: ${company}
 Return ONLY this exact JSON structure with no other text:
 {"name":"${name}","company":"${company}","title":"guess their likely title","industry":"guess the industry","companyDescription":"one sentence about what they do","companySize":"estimate","recentNews":"any news or write unknown","painPoints":"likely pain points for this type of company"}`;
 
-const EMAIL_PROMPT = (research) => `Return a JSON object with a cold email. No explanation, just JSON.
+const EMAIL_PROMPT = (research) => `You are a senior B2B copywriter. Write a cold outreach email from Opiniion to the prospect below. Return ONLY JSON, no other text.
 
-Sender: Opiniion (resident satisfaction software for property managers — collects resident feedback, generates reviews, manages social media and business listings).
-Recipient: ${research.name}, ${research.title} at ${research.company}. ${research.companyDescription}. Pain points: ${research.painPoints}.
+ABOUT OPINIION:
+Opiniion is a leading resident satisfaction and reputation management platform for multifamily property management companies. Named to the Inc. 5000 Fastest-Growing Companies list two years in a row. Subscription-based, scalable for any portfolio size.
 
-Return ONLY this exact JSON with no other text:
-{"subject":"email subject here","body":"email body under 80 words, personalized, one Opiniion benefit, soft CTA"}`;
+Core problems solved:
+- Property managers only hear from residents when things go wrong — Opiniion creates a continuous feedback loop via automated SMS/email surveys at key moments (tours, move-ins, maintenance, renewals, move-outs)
+- Bad reviews kill leasing — Opiniion automatically converts happy residents into public reviews. One property went from 2.8 to 4.0 stars and added nearly 1,000 reviews in 10 months
+- No portfolio visibility — Opiniion's dashboard shows performance across communities, managers, and maintenance teams
+- Feedback fragmented across PMS systems — Opiniion integrates with Yardi, Entrata, AppFolio, RealPage, Buildium, Rent Manager
+
+Key capabilities: automated SMS/email surveys, negative feedback routing (catches problems before they become public reviews), automated review generation, centralized reputation monitoring (Google, Yelp, Facebook, ApartmentRatings), customizable survey campaigns, portfolio analytics, social media management, business listings sync.
+
+Business outcomes: higher star ratings, more leasing conversions, better retention, operational intelligence, improved NOI.
+
+PROSPECT:
+Name: ${research.name}, Title: ${research.title}, Company: ${research.company}
+About: ${research.companyDescription}
+Pain points: ${research.painPoints}
+Recent news: ${research.recentNews}
+
+EMAIL RULES:
+- Max 80 words in the body
+- Open with ONE specific observation about their company or a pain point they likely feel — NOT a generic opener
+- Connect that pain point to ONE specific Opiniion capability — use a concrete stat or outcome if relevant
+- End with a soft CTA ("Worth a quick call?" or "Open to a 15-min demo?")
+- Write like a real person — no buzzwords, no "I hope this finds you well", no fluff
+- Pick the ONE most relevant feature, don't list everything
+
+Return ONLY this JSON with no other text:
+{"subject":"...","body":"..."}`;
 
 const BRAND = {
   teal: "#2bbfbf",
