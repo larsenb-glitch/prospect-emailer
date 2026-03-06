@@ -2,21 +2,20 @@ import { useState, useRef } from "react";
 
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
 
-const RESEARCH_PROMPT = (name, company) => `Research this prospect and return JSON only (no markdown, no backticks).
+const RESEARCH_PROMPT = (name, company) => `Return a JSON object about this person. No explanation, no apology, just JSON. If you don't know something, make a reasonable guess based on the company name and industry.
 
-Prospect: ${name} at ${company}
+Person: ${name}, Company: ${company}
 
-Find: job title, company industry, company description (1 sentence), company size, recent news (1 sentence), pain points.
+Return ONLY this exact JSON structure with no other text:
+{"name":"${name}","company":"${company}","title":"guess their likely title","industry":"guess the industry","companyDescription":"one sentence about what they do","companySize":"estimate","recentNews":"any news or write unknown","painPoints":"likely pain points for this type of company"}`;
 
-Return ONLY: {"name":"${name}","company":"${company}","title":"...","industry":"...","companyDescription":"...","companySize":"...","recentNews":"...","painPoints":"..."}`;
+const EMAIL_PROMPT = (research) => `Return a JSON object with a cold email. No explanation, just JSON.
 
-const EMAIL_PROMPT = (research) => `Write a short B2B cold email on behalf of Opiniion — resident satisfaction software for property management companies. Opiniion helps property managers collect real-time resident feedback, generate online reviews, manage social media across all properties, and sync business listings (Google, Yelp, etc.).
+Sender: Opiniion (resident satisfaction software for property managers — collects resident feedback, generates reviews, manages social media and business listings).
+Recipient: ${research.name}, ${research.title} at ${research.company}. ${research.companyDescription}. Pain points: ${research.painPoints}.
 
-Prospect: ${research.name}, ${research.title} at ${research.company}. ${research.companyDescription} Recent news: ${research.recentNews}. Pain points: ${research.painPoints}.
-
-Rules: max 80 words, open with something specific to them, mention one Opiniion benefit, soft CTA, no fluff.
-
-Return ONLY: {"subject":"...","body":"..."}`;
+Return ONLY this exact JSON with no other text:
+{"subject":"email subject here","body":"email body under 80 words, personalized, one Opiniion benefit, soft CTA"}`;
 
 const BRAND = {
   teal: "#2bbfbf",
