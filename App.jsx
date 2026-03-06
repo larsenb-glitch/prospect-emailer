@@ -236,7 +236,7 @@ export default function BatchProspectEmailer() {
       const update = (patch) => setResults(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r));
       try {
         update({ status: "researching" });
-        const rawResearch = await callClaude(RESEARCH_PROMPT(name, company), false);
+        const rawResearch = await callClaude(RESEARCH_PROMPT(name, company), true);
         const research = JSON.parse(rawResearch);
         update({ research, status: "writing" });
         const rawEmail = await callClaude(EMAIL_PROMPT(research), false);
