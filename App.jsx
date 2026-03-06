@@ -36,7 +36,7 @@ EMAIL RULES:
 - Connect that pain point to ONE specific Opiniion capability — use a concrete stat or outcome if relevant
 - End with a soft CTA ("Worth a quick call?" or "Open to a 15-min demo?")
 - Write like a real person — no buzzwords, no "I hope this finds you well", no fluff
-- Pick the ONE most relevant feature, don't list everything
+- Format the body with a line break between each sentence — no walls of text
 
 Return ONLY this JSON with no other text:
 {"subject":"...","body":"..."}`;
@@ -173,7 +173,7 @@ function ResultCard({ result }) {
               <textarea
                 value={editBody}
                 onChange={e => setEditBody(e.target.value)}
-                style={{ ...S.input, lineHeight: 1.7, resize: "vertical", minHeight: 160 }}
+                style={{ ...S.input, lineHeight: 1.9, resize: "vertical", minHeight: 180, whiteSpace: "pre-wrap" }}
                 onFocus={e => e.target.style.borderColor = BRAND.teal}
                 onBlur={e => e.target.style.borderColor = BRAND.grayBorder}
               />
