@@ -16,7 +16,7 @@ Opiniion is a leading resident satisfaction and reputation management platform f
 
 Core problems solved:
 - Property managers only hear from residents when things go wrong — Opiniion creates a continuous feedback loop via automated SMS/email surveys at key moments (tours, move-ins, maintenance, renewals, move-outs)
-- Bad reviews kill leasing — Opiniion automatically converts happy residents into public reviews. One property went from 2.8 to 4.0 stars and added nearly 1,000 reviews in 10 months
+- Bad reviews kill leasing — Opiniion automatically converts happy residents into public reviews, helping properties significantly improve their star ratings and review volume within months
 - No portfolio visibility — Opiniion's dashboard shows performance across communities, managers, and maintenance teams
 - Feedback fragmented across PMS systems — Opiniion integrates with Yardi, Entrata, AppFolio, RealPage, Buildium, Rent Manager
 
