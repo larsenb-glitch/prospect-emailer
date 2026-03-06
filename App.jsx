@@ -37,34 +37,10 @@ EMAIL RULES:
 - End with a soft CTA ("Worth a quick call?" or "Open to a 15-min demo?")
 - Write like a real person — no buzzwords, no "I hope this finds you well", no fluff
 - Format the body with a line break between each sentence — no walls of text
+- Pick the ONE most relevant feature, don't list everything
 
 Return ONLY this JSON with no other text:
 {"subject":"...","body":"..."}`;
-
-const BRAND = {
-  teal: "#2bbfbf",
-  tealDark: "#1a9e9e",
-  tealLight: "#e8f9f9",
-  navy: "#1a2e44",
-  gray: "#f7f8fa",
-  grayBorder: "#e2e6ea",
-  textDark: "#1a2e44",
-  textMid: "#4a5568",
-  textLight: "#8a95a3",
-  white: "#ffffff",
-};
-
-const S = {
-  page: { minHeight: "100vh", background: BRAND.gray, fontFamily: "'Helvetica Neue', Arial, sans-serif", color: BRAND.textDark },
-  bg: { display: "none" },
-  wrap: { position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "0 24px 48px" },
-  label: { display: "block", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.textMid, marginBottom: 7, fontWeight: 600 },
-  input: { width: "100%", boxSizing: "border-box", background: BRAND.white, border: `1px solid ${BRAND.grayBorder}`, borderRadius: 6, padding: "10px 14px", color: BRAND.textDark, fontSize: 14, fontFamily: "inherit", outline: "none", transition: "border-color 0.2s" },
-  card: { background: BRAND.white, border: `1px solid ${BRAND.grayBorder}`, borderRadius: 10, padding: "24px 28px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" },
-  goldCard: { background: BRAND.tealLight, border: "1px solid rgba(43,191,191,0.25)", borderRadius: 10, padding: "24px 28px" },
-  microLabel: { fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.textLight, marginBottom: 5, fontWeight: 600 },
-  microVal: { fontSize: 13, color: BRAND.textMid, lineHeight: 1.6 },
-};
 
 const callClaude = async (userPrompt, useWebSearch = false) => {
   const body = {
@@ -88,20 +64,455 @@ const callClaude = async (userPrompt, useWebSearch = false) => {
   return text.replace(/```json|```/g, "").trim();
 };
 
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { background: #f0f4f8; }
+
+  .app { min-height: 100vh; font-family: 'DM Sans', sans-serif; color: #1a2e44; }
+
+  .topbar {
+    background: linear-gradient(135deg, #0f2035 0%, #1a3a5c 100%);
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-logo { height: 30px; filter: brightness(0) invert(1); }
+
+  .topbar-divider {
+    width: 1px;
+    height: 22px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 18px;
+  }
+
+  .topbar-title {
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .topbar-badge {
+    margin-left: auto;
+    background: rgba(43,191,191,0.2);
+    border: 1px solid rgba(43,191,191,0.4);
+    color: #2bbfbf;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #0f2035 0%, #1a3a5c 100%);
+    padding: 28px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .hero-inner { max-width: 1060px; margin: 0 auto; display: flex; align-items: flex-start; gap: 48px; flex-wrap: wrap; }
+
+  .hero-intro { flex: 1; min-width: 260px; }
+
+  .hero-intro p {
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  .hero-title {
+    color: rgba(255,255,255,0.9);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .steps {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex: 2;
+    min-width: 300px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(43,191,191,0.2);
+    border: 1px solid rgba(43,191,191,0.4);
+    color: #2bbfbf;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+  }
+
+  .step-text strong {
+    display: block;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 36px 40px 60px; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2bbfbf;
+    margin-bottom: 14px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+
+  .card-teal {
+    background: linear-gradient(135deg, #e8f9f9 0%, #f0fefe 100%);
+    border: 1px solid rgba(43,191,191,0.2);
+    border-radius: 14px;
+    padding: 28px 32px;
+  }
+
+  .grid-cols-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 38px;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .col-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+
+  .row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 38px;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .inp {
+    width: 100%;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 11px 15px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: #1a2e44;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .inp:focus {
+    border-color: #2bbfbf;
+    box-shadow: 0 0 0 3px rgba(43,191,191,0.12);
+    background: #fff;
+  }
+
+  .inp::placeholder { color: #b0bec5; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { border-color: #2bbfbf; color: #2bbfbf; }
+
+  .btn-remove {
+    background: transparent;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    color: #b0bec5;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-remove:hover { border-color: #fc8181; color: #fc8181; background: #fff5f5; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2bbfbf 0%, #1a9e9e 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 14px rgba(43,191,191,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(43,191,191,0.4); }
+  .btn-primary:disabled { background: #b2dfdf; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .btn-copy {
+    background: linear-gradient(135deg, #2bbfbf 0%, #1a9e9e 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 14px;
+    width: 100%;
+  }
+  .btn-copy.copied { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+
+  .tip-text {
+    font-size: 12px;
+    color: #94a3b8;
+    font-style: italic;
+  }
+
+  .progress-bar-track {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2bbfbf, #1a9e9e);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .result-card {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .result-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+  .result-card.done { border-color: rgba(43,191,191,0.3); }
+  .result-card.error { border-color: rgba(252,129,129,0.4); }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    gap: 12px;
+  }
+
+  .result-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .result-name { font-size: 15px; font-weight: 600; color: #1a2e44; }
+  .result-dot { color: #e2e8f0; }
+  .result-company { font-size: 13px; color: #64748b; }
+  .result-title { font-size: 12px; color: #94a3b8; }
+  .result-error { font-size: 12px; color: #fc8181; font-style: italic; }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge-idle    { color: #94a3b8; background: #f1f5f9; }
+  .badge-researching { color: #1a9e9e; background: rgba(43,191,191,0.12); }
+  .badge-writing { color: #3b7dd8; background: rgba(59,125,216,0.1); }
+  .badge-done    { color: #38a169; background: rgba(72,187,120,0.12); }
+  .badge-error   { color: #e53e3e; background: rgba(252,129,129,0.12); }
+
+  .btn-view {
+    background: transparent;
+    border: 1.5px solid #2bbfbf;
+    border-radius: 8px;
+    color: #2bbfbf;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .btn-view:hover { background: #2bbfbf; color: #fff; }
+
+  .expand-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 0 24px 24px;
+    border-top: 1px solid #f0f4f8;
+  }
+
+  .micro-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 5px;
+  }
+
+  .micro-val {
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .subject-box {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a2e44;
+    margin-bottom: 14px;
+  }
+
+  .email-textarea {
+    width: 100%;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: #1a2e44;
+    line-height: 1.85;
+    resize: vertical;
+    min-height: 170px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    white-space: pre-wrap;
+  }
+  .email-textarea:focus {
+    border-color: #2bbfbf;
+    box-shadow: 0 0 0 3px rgba(43,191,191,0.12);
+    background: #fff;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #1a9e9e;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid rgba(43,191,191,0.2);
+  }
+
+  .cancel-btn {
+    background: transparent;
+    border: 1.5px solid #fc8181;
+    border-radius: 8px;
+    color: #e53e3e;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+
+  .new-batch-btn {
+    background: transparent;
+    border: 1.5px solid #2bbfbf;
+    border-radius: 8px;
+    color: #2bbfbf;
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .new-batch-btn:hover { background: #2bbfbf; color: #fff; }
+`;
+
+let idCounter = 0;
+const newRow = () => ({ id: ++idCounter, name: "", company: "" });
+
 function StatusBadge({ status }) {
   const map = {
-    idle:        { color: "#8a95a3", bg: "#f0f2f5",               label: "Queued" },
-    researching: { color: "#1a9e9e", bg: "rgba(43,191,191,0.12)", label: "Researching…" },
-    writing:     { color: "#3b7dd8", bg: "rgba(59,125,216,0.1)",  label: "Writing email…" },
-    done:        { color: "#2e9e6e", bg: "rgba(46,158,110,0.1)",  label: "Done ✓" },
-    error:       { color: "#d94f4f", bg: "rgba(217,79,79,0.1)",   label: "Error" },
+    idle: { cls: "badge-idle", label: "Queued" },
+    researching: { cls: "badge-researching", label: "Researching…" },
+    writing: { cls: "badge-writing", label: "Writing…" },
+    done: { cls: "badge-done", label: "Done ✓" },
+    error: { cls: "badge-error", label: "Error" },
   };
   const s = map[status] || map.idle;
-  return (
-    <span style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: s.color, background: s.bg, padding: "3px 8px", borderRadius: 2 }}>
-      {s.label}
-    </span>
-  );
+  return <span className={`badge ${s.cls}`}>{s.label}</span>;
 }
 
 function ResultCard({ result }) {
@@ -109,7 +520,7 @@ function ResultCard({ result }) {
   const [editBody, setEditBody] = useState(result.email?.body || "");
   const [copied, setCopied] = useState(false);
 
-  if (result.email && editBody === "" && result.email.body) setEditBody(result.email.body);
+  if (result.email && !editBody && result.email.body) setEditBody(result.email.body);
 
   const copy = () => {
     navigator.clipboard.writeText(`Subject: ${result.email.subject}\n\n${editBody}`);
@@ -117,35 +528,30 @@ function ResultCard({ result }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const cardClass = `result-card ${result.status === "done" ? "done" : result.status === "error" ? "error" : ""}`;
+
   return (
-    <div style={{ ...S.card, marginBottom: 10 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+    <div className={cardClass}>
+      <div className="result-row">
+        <div className="result-left">
           <StatusBadge status={result.status} />
-          <span style={{ fontSize: 15, color: BRAND.textDark, fontWeight: 600 }}>{result.name}</span>
-          <span style={{ color: BRAND.grayBorder }}>·</span>
-          <span style={{ fontSize: 13, color: BRAND.textMid }}>{result.company}</span>
-          {result.research?.title && (
-            <span style={{ fontSize: 12, color: BRAND.textLight }}>{result.research.title}</span>
-          )}
-          {result.status === "error" && (
-            <span style={{ fontSize: 12, color: "#d94f4f", fontStyle: "italic" }}>{result.errorMsg}</span>
-          )}
+          <span className="result-name">{result.name}</span>
+          <span className="result-dot">·</span>
+          <span className="result-company">{result.company}</span>
+          {result.research?.title && <span className="result-title">{result.research.title}</span>}
+          {result.status === "error" && <span className="result-error">{result.errorMsg}</span>}
         </div>
         {result.status === "done" && (
-          <button
-            onClick={() => setExpanded(x => !x)}
-            style={{ background: "transparent", border: `1px solid ${BRAND.teal}`, borderRadius: 6, color: BRAND.teal, padding: "5px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-          >
-            {expanded ? "Collapse ▲" : "View ▼"}
+          <button className="btn-view" onClick={() => setExpanded(x => !x)}>
+            {expanded ? "Collapse ▲" : "View Email ▼"}
           </button>
         )}
       </div>
 
       {expanded && result.status === "done" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginTop: 20 }}>
-          <div style={S.goldCard}>
-            <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.tealDark, marginBottom: 16, fontWeight: 700 }}>Research Brief</div>
+        <div className="expand-panel">
+          <div className="card-teal" style={{ margin: 0 }}>
+            <div className="panel-title">Research Brief</div>
             {[
               ["Title", result.research.title],
               ["Industry", result.research.industry],
@@ -154,35 +560,25 @@ function ResultCard({ result }) {
               ["Recent News", result.research.recentNews],
               ["Pain Points", result.research.painPoints],
             ].filter(([, v]) => v).map(([label, value]) => (
-              <div key={label} style={{ marginBottom: 12 }}>
-                <div style={S.microLabel}>{label}</div>
-                <div style={S.microVal}>{value}</div>
+              <div key={label}>
+                <div className="micro-label">{label}</div>
+                <div className="micro-val">{value}</div>
               </div>
             ))}
           </div>
-          <div style={{ ...S.card, display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.tealDark, marginBottom: 16, fontWeight: 700 }}>Draft Email</div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={S.microLabel}>Subject</div>
-              <div style={{ fontSize: 14, color: BRAND.textDark, fontWeight: 600, background: BRAND.gray, padding: "8px 12px", borderRadius: 6, border: `1px solid ${BRAND.grayBorder}` }}>
-                {result.email.subject}
-              </div>
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={S.microLabel}>Body <span style={{ textTransform: "none", letterSpacing: 0, color: BRAND.textLight, fontWeight: 400 }}>(editable)</span></div>
-              <textarea
-                value={editBody}
-                onChange={e => setEditBody(e.target.value)}
-                style={{ ...S.input, lineHeight: 1.9, resize: "vertical", minHeight: 180, whiteSpace: "pre-wrap" }}
-                onFocus={e => e.target.style.borderColor = BRAND.teal}
-                onBlur={e => e.target.style.borderColor = BRAND.grayBorder}
-              />
-            </div>
-            <button
-              onClick={copy}
-              style={{ marginTop: 12, background: copied ? "#2e9e6e" : BRAND.teal, border: "none", borderRadius: 6, padding: "10px 16px", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "background 0.2s" }}
-            >
-              {copied ? "✓ Copied!" : "Copy Subject + Body"}
+
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div className="panel-title">Draft Email</div>
+            <div className="micro-label">Subject Line</div>
+            <div className="subject-box">{result.email.subject}</div>
+            <div className="micro-label">Body <span style={{ textTransform: "none", letterSpacing: 0, color: "#b0bec5", fontWeight: 400 }}>(editable)</span></div>
+            <textarea
+              className="email-textarea"
+              value={editBody}
+              onChange={e => setEditBody(e.target.value)}
+            />
+            <button className={`btn-copy${copied ? " copied" : ""}`} onClick={copy}>
+              {copied ? "✓ Copied to clipboard!" : "Copy Subject + Body"}
             </button>
           </div>
         </div>
@@ -191,10 +587,7 @@ function ResultCard({ result }) {
   );
 }
 
-let idCounter = 0;
-const newRow = () => ({ id: ++idCounter, name: "", company: "" });
-
-export default function BatchProspectEmailer() {
+export default function App() {
   const [rows, setRows] = useState([newRow(), newRow(), newRow()]);
   const [results, setResults] = useState([]);
   const [running, setRunning] = useState(false);
@@ -227,8 +620,7 @@ export default function BatchProspectEmailer() {
     cancelRef.current = false;
     setRunning(true);
     setProgress({ done: 0, total: validRows.length });
-    const initialResults = validRows.map(r => ({ ...r, status: "idle", research: null, email: null, errorMsg: "" }));
-    setResults(initialResults);
+    setResults(validRows.map(r => ({ ...r, status: "idle", research: null, email: null, errorMsg: "" })));
 
     for (let i = 0; i < validRows.length; i++) {
       if (cancelRef.current) break;
@@ -260,98 +652,104 @@ export default function BatchProspectEmailer() {
   const pct = progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;
 
   return (
-    <div style={S.page}>
-      <div style={S.bg} />
+    <>
+      <style>{css}</style>
+      <div className="app">
 
-      {/* Top nav bar */}
-      <div style={{ background: BRAND.navy, padding: "0 32px", display: "flex", alignItems: "center", height: 60, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
-        <img src="https://opiniion.com/wp-content/uploads/2022/05/Group-943.svg" alt="Opiniion" style={{ height: 28, filter: "brightness(0) invert(1)" }} />
-        <span style={{ marginLeft: 16, color: "rgba(255,255,255,0.4)", fontSize: 13 }}>|</span>
-        <span style={{ marginLeft: 16, color: "rgba(255,255,255,0.75)", fontSize: 13, fontWeight: 500, letterSpacing: "0.02em" }}>Prospect Emailer</span>
-      </div>
-
-      <div style={S.wrap}>
-
-        {/* Header */}
-        <div style={{ padding: "36px 0 28px", borderBottom: `1px solid ${BRAND.grayBorder}`, marginBottom: 28 }}>
-          <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0, color: BRAND.navy }}>
-            Batch Prospect Research & Email Generator
-          </h1>
-          <p style={{ marginTop: 8, color: BRAND.textMid, fontSize: 14, lineHeight: 1.6, maxWidth: 580 }}>
-            Add prospects below — or paste a CSV (Name, Company per line). We'll research each one and draft a personalized cold email pitched around Opiniion's value prop.
-          </p>
+        {/* Topbar */}
+        <div className="topbar">
+          <img className="topbar-logo" src="https://opiniion.com/wp-content/uploads/2022/05/Group-943.svg" alt="Opiniion" />
+          <div className="topbar-divider" />
+          <span className="topbar-title">Prospect Emailer</span>
+          <span className="topbar-badge">Sales Tool</span>
         </div>
 
-        {/* Input table */}
-        {!running && results.length === 0 && (
-          <div style={{ ...S.card, marginBottom: 24 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 36px", gap: 10, marginBottom: 12 }}>
-              <div style={S.label}>Prospect Name</div>
-              <div style={S.label}>Company</div>
-              <div />
+        {/* Hero */}
+        <div className="hero">
+          <div className="hero-inner">
+            <div className="hero-intro">
+              <div className="hero-title">Prospect Emailer</div>
+              <p>Enter a prospect's name and company — we'll research them and write a personalized cold email for you.</p>
             </div>
-            <div onPaste={handlePaste}>
-              {rows.map(r => (
-                <div key={r.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 36px", gap: 10, marginBottom: 10 }}>
-                  <input value={r.name} onChange={e => updateRow("name", e.target.value, r.id)} placeholder="e.g. Sarah Chen" style={S.input}
-                    onFocus={e => e.target.style.borderColor = BRAND.teal}
-                    onBlur={e => e.target.style.borderColor = BRAND.grayBorder} />
-                  <input value={r.company} onChange={e => updateRow("company", e.target.value, r.id)} placeholder="e.g. Acme Properties" style={S.input}
-                    onFocus={e => e.target.style.borderColor = BRAND.teal}
-                    onBlur={e => e.target.style.borderColor = BRAND.grayBorder} />
-                  <button onClick={() => updateRow("remove", null, r.id)} style={{ background: "transparent", border: `1px solid ${BRAND.grayBorder}`, borderRadius: 6, color: BRAND.textLight, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 12, marginTop: 16, alignItems: "center", flexWrap: "wrap" }}>
-              <button onClick={() => setRows(r => [...r, newRow()])}
-                style={{ background: "transparent", border: `1px solid ${BRAND.grayBorder}`, borderRadius: 6, color: BRAND.textMid, padding: "9px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                + Add Row
-              </button>
-              <button onClick={run} disabled={!validRows.length}
-                style={{ background: validRows.length ? BRAND.teal : "#c8e8e8", color: "#fff", border: "none", borderRadius: 6, padding: "9px 28px", fontSize: 14, fontWeight: 700, cursor: validRows.length ? "pointer" : "not-allowed", transition: "background 0.2s" }}>
-                Run {validRows.length > 0 ? `${validRows.length} Prospect${validRows.length !== 1 ? "s" : ""}` : ""} →
-              </button>
-              <span style={{ fontSize: 12, color: BRAND.textLight }}>tip: paste a CSV to fill the list instantly</span>
-            </div>
-          </div>
-        )}
-
-        {/* Progress */}
-        {running && (
-          <div style={{ ...S.card, marginBottom: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div style={{ fontSize: 14, color: BRAND.navy, fontWeight: 600 }}>Processing {progress.done} of {progress.total} prospects…</div>
-              <div style={{ fontSize: 13, color: BRAND.textLight }}>{pct}%</div>
-            </div>
-            <div style={{ height: 6, background: BRAND.grayBorder, borderRadius: 3, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${BRAND.teal}, ${BRAND.tealDark})`, borderRadius: 3, transition: "width 0.5s ease" }} />
-            </div>
-            <button onClick={() => { cancelRef.current = true; }}
-              style={{ marginTop: 14, background: "transparent", border: "1px solid #d94f4f", borderRadius: 6, color: "#d94f4f", padding: "6px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-              Cancel
-            </button>
-          </div>
-        )}
-
-        {/* Results list */}
-        {results.length > 0 && (
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <div style={{ fontSize: 13, color: BRAND.textMid, fontWeight: 600 }}>
-                {results.filter(r => r.status === "done").length} of {results.length} complete
+            <div className="steps">
+              <div className="step">
+                <div className="step-num">1</div>
+                <div className="step-text"><strong>Add Prospects</strong>Type names and companies below, or paste a CSV list.</div>
               </div>
-              {isDone && (
-                <button onClick={reset}
-                  style={{ background: "transparent", border: `1px solid ${BRAND.teal}`, borderRadius: 6, color: BRAND.teal, padding: "6px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                  ↺ New Batch
-                </button>
-              )}
+              <div className="step">
+                <div className="step-num">2</div>
+                <div className="step-text"><strong>Hit Run</strong>We'll research each prospect and write a tailored email.</div>
+              </div>
+              <div className="step">
+                <div className="step-num">3</div>
+                <div className="step-text"><strong>Review & Send</strong>Edit the email if needed, then copy and paste into Gmail.</div>
+              </div>
             </div>
-            {results.map(r => <ResultCard key={r.id} result={r} />)}
           </div>
-        )}
+        </div>
+
+        <div className="wrap">
+
+          {/* Input */}
+          {!running && results.length === 0 && (
+            <div className="card">
+              <div className="section-label">Add Prospects</div>
+              <div className="grid-cols-header">
+                <div className="col-label">Prospect Name</div>
+                <div className="col-label">Company</div>
+                <div />
+              </div>
+              <div onPaste={handlePaste}>
+                {rows.map(r => (
+                  <div key={r.id} className="row-grid">
+                    <input className="inp" value={r.name} onChange={e => updateRow("name", e.target.value, r.id)} placeholder="e.g. Sarah Chen" />
+                    <input className="inp" value={r.company} onChange={e => updateRow("company", e.target.value, r.id)} placeholder="e.g. Greystar" />
+                    <button className="btn-remove" onClick={() => updateRow("remove", null, r.id)}>×</button>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 12, marginTop: 18, alignItems: "center", flexWrap: "wrap" }}>
+                <button className="btn-ghost" onClick={() => setRows(r => [...r, newRow()])}>+ Add Row</button>
+                <button className="btn-primary" onClick={run} disabled={!validRows.length}>
+                  Run {validRows.length > 0 ? `${validRows.length} Prospect${validRows.length !== 1 ? "s" : ""}` : ""} →
+                </button>
+                <span className="tip-text">tip: paste a CSV (Name, Company) to fill instantly</span>
+              </div>
+            </div>
+          )}
+
+          {/* Progress */}
+          {running && (
+            <div className="card">
+              <div className="section-label">Processing</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#1a2e44" }}>
+                  {progress.done} of {progress.total} prospects complete
+                </span>
+                <span style={{ fontSize: 13, color: "#94a3b8", fontWeight: 600 }}>{pct}%</span>
+              </div>
+              <div className="progress-bar-track">
+                <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+              </div>
+              <button className="cancel-btn" onClick={() => { cancelRef.current = true; }}>Cancel</button>
+            </div>
+          )}
+
+          {/* Results */}
+          {results.length > 0 && (
+            <div>
+              <div className="results-header">
+                <div className="section-label" style={{ margin: 0 }}>
+                  Results — {results.filter(r => r.status === "done").length} of {results.length} complete
+                </div>
+                {isDone && <button className="new-batch-btn" onClick={reset}>↺ New Batch</button>}
+              </div>
+              {results.map(r => <ResultCard key={r.id} result={r} />)}
+            </div>
+          )}
+
+        </div>
       </div>
-    </div>
+    </>
   );
 }
