@@ -17,7 +17,7 @@ Opiniion empowers property owners and operators to attract, engage, and retain r
 Opiniion's full product suite:
 
 ATTRACT — Draw in qualified prospects with:
-- Business Listings Management: accurate, synced listings across Google, Yelp, Apple Maps and more
+- ListingsPro (Business Listings Management): accurate, synced listings across Google, Yelp, Apple Maps and more — one dashboard to manage all property listings across the web
 - Strong online reputation that converts more leads to leases
 - Peer-to-Peer Leasing (Rentgrata): real renter-to-prospect conversations that convert leads
 
@@ -25,7 +25,7 @@ ENGAGE — Keep residents connected with:
 - Resident Satisfaction surveys: automated SMS/email surveys at tours, move-ins, maintenance, renewals, move-outs
 - Negative feedback routing: catches problems before they become public reviews
 - Automated review generation: converts happy residents into Google/Yelp/ApartmentRatings reviews
-- Social Media Management: manage all property social accounts from one place
+- SocialPro (Social Media Management): manage and publish authentic content across all property social accounts from one place
 - Personalized resident outreach and community connection tools
 
 RETAIN — Boost loyalty and NOI with:
@@ -536,7 +536,7 @@ function StatusBadge({ status }) {
   return <span className={`badge ${s.cls}`}>{s.label}</span>;
 }
 
-function ResultCard({ result, onRegenerate }) {
+function ResultCard({ result, onRegenerate, onRetry }) {
   const [expanded, setExpanded] = useState(false);
   const [editBody, setEditBody] = useState(result.email?.body || "");
   const [copiedAll, setCopiedAll] = useState(false);
@@ -584,7 +584,17 @@ function ResultCard({ result, onRegenerate }) {
           {result.research?.title && <span className="result-title">{result.research.title}</span>}
           {result.status === "error" && <span className="result-error">{result.errorMsg}</span>}
         </div>
-        {result.status === "done" && (
+        <div style={{ display: "flex", gap: 8 }}>
+          {result.status === "error" && (
+            <button
+              className="btn-view"
+              onClick={() => onRetry(result.id, result.name, result.company)}
+              style={{ borderColor: "#fc8181", color: "#e53e3e" }}
+            >
+              ↺ Retry
+            </button>
+          )}
+          {result.status === "done" && (
           <div style={{ display: "flex", gap: 8 }}>
             <button
               className="btn-view"
@@ -724,6 +734,21 @@ export default function App() {
     }
   };
 
+  const retry = async (id, name, company) => {
+    const update = (patch) => setResults(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r));
+    try {
+      update({ status: "researching", errorMsg: "" });
+      const rawResearch = await callClaude(RESEARCH_PROMPT(name, company), true);
+      const research = JSON.parse(rawResearch);
+      update({ research, status: "writing" });
+      const rawEmail = await callClaude(EMAIL_PROMPT(research), false);
+      const email = JSON.parse(rawEmail);
+      update({ email, status: "done" });
+    } catch (err) {
+      update({ status: "error", errorMsg: err.message || "Failed" });
+    }
+  };
+
   const reset = () => {
     setResults([]);
     setProgress({ done: 0, total: 0 });
@@ -773,7 +798,7 @@ export default function App() {
         <div className="wrap">
 
           {/* Input */}
-          {!running && results.length === 0 && (
+          {results.length === 0 && (
             <div className="card">
               <div className="section-label">Add Prospects</div>
               <div className="grid-cols-header">
@@ -817,7 +842,7 @@ export default function App() {
             </div>
           )}
 
-          {/* Results */}
+          {/* Results — show during and after running */}
           {results.length > 0 && (
             <div>
               <div className="results-header">
@@ -826,7 +851,7 @@ export default function App() {
                 </div>
                 {isDone && <button className="new-batch-btn" onClick={reset}>↺ New Batch</button>}
               </div>
-              {results.map(r => <ResultCard key={r.id} result={r} onRegenerate={regenerate} />)}
+              {results.map(r => <ResultCard key={r.id} result={r} onRegenerate={regenerate} onRetry={retry} />)}
             </div>
           )}
 
